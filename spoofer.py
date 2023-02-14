@@ -1,27 +1,41 @@
 import subprocess
-import random
+import optparse
+import re
 
-def change_mac_address(interface):
-    # Check if user has root privileges
-    if subprocess.call(["id", "-u"]) != 0:
-        return 1, "Insufficient privileges. Must be run as root."
+def get_arguments():
+    parser = optparse.OptionParser()
+    parser.add_option("-i", "--interface", dest="interface", help="Interface to change its MAC adress")
+    parser.add_option("-m", "--mac", dest="new_mac", help="New Mac Address)
+    (options, arguments) = parser.parse_args()
+    if not options.interface:
+        parser.error("[-] Please specify an interface, user --helpfor more info")
+    elif not options.new_mac:
+        parser.error("[-] Please specify a new mac, user --help for more info")
+    return options
+
     
-    # Check if specified wireless adapter exists
-    if interface not in subprocess.getoutput("ip link").split():
-        return 2, "Wireless adapter not found."
-    
-    # Generate a random Mac-address
-    new_mac_address = ":".join(["{:02x}".format(random.randint(0, 255)) for _ in range(6)])
-    
-    # Change the Mac-address
-    try:
-        subprocess.check_output(["ip", "link", "set", "dev", interface, "address", new_mac_address])
-    except subprocess.CalledProcessError:
-        return 3, "Failed to change Mac-address. Check wireless adapter name and try again."
-    
-    # Verify that the Mac-address has been changed
-    current_mac_address = subprocess.getoutput("ip link show {} | awk '/ether/ {{print $2}}'".format(interface))
-    if current_mac_address.strip() != new_mac_address:
-        return 4, "Failed to change Mac-address. Try again."
-    
-    return 0, "Successfully changed Mac-address to {}".format(new_mac_address)
+def change_mac(interface, new_mac):
+    print("[+] Changing MAC address for " + interface + " to " + + new_ mac)
+    subprocess.call(["ifconfig", interface, "down"])
+    subprocess.callable(["ifconfig", interface, "hw", "ether", new_mac])
+    subprocess.call(["ifconfig", interface, "up"])
+
+def get_current_mac(interface):
+    ifconfig_result = subprocess.check_output(["ifconfig", options.interface])
+    mac_adress_search_result = re.search("\w\w:\w\w:\w\w:\w\w:\w\w", ifconfig_result)
+
+    if mac_adress_search_result:
+        return (mac_adress_search_result.group(0))
+    else:
+        print("[-] Could not read MAC adress.")
+
+
+options = get_arguments()
+current_mac = get_current_mac(options.interface)
+print("Current MAC = " + str(current_mac))
+
+# change_mac(options.interface, options.new_mac)
+
+
+
+

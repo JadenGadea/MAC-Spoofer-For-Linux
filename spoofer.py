@@ -22,7 +22,7 @@ def change_mac(interface, new_mac):
 
 def get_current_mac(interface):
     ifconfig_result = subprocess.check_output(["ifconfig", options.interface])
-    mac_adress_search_result = re.search("\w\w:\w\w:\w\w:\w\w:\w\w", ifconfig_result)
+    mac_adress_search_result = re.search("\w\w:\w\w:\w\w:\w\w:\w\w", str(ifconfig_result))
 
     if mac_adress_search_result:
         return (mac_adress_search_result.group(0))

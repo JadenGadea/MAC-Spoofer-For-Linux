@@ -1,9 +1,7 @@
-# Path: spoofer.py
 import subprocess
 import optparse
 import re
 
-# where is there error in the code?
 
 
 def get_arguments():
